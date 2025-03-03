@@ -15,16 +15,16 @@ public class TestApi {
 
     private static final String BASE_URL = "http://44.204.239.34:5000";
 
-    /*** GET Request - Positive Scenario ***/
+    /*** GET Request Utility - Positive Scenario ***/
     @Test(priority = 1)
-    public void testGet_Positive() {
+    public void testUtility_Positive() {
         Response response = RestAssured
                 .given()
                 .baseUri(BASE_URL)
                 .when()
                 .get("/health");
 
-        System.out.println("Response Code: " + response.statusCode() + ", GET Request - Positive Scenario");
+        System.out.println("Response Code: " + response.statusCode() + ", GET Request Utility - Positive Scenario");
         System.out.println("Response Body Get positive: " + response.getBody().asString());
         System.out.println("----------------------------------------------");
 
@@ -32,22 +32,25 @@ public class TestApi {
         Assert.assertEquals(response.getContentType(), "application/json", "Expected JSON response"); // Verify JSON format
     }
 
-    /*** GET Request - Negative Scenario ***/
+    /*** GET Request Utility - Negative Scenario ***/
     @Test(priority = 2)
-    public void testGet_Negative() {
+    public void testUtility_Negative() {
         Response response = RestAssured
                 .given()
                 .baseUri(BASE_URL)
                 .when()
                 .get("/nonexistent");
-        System.out.println("Response Code: " + response.statusCode() + ", GET Request - Negative Scenario");
+
+        System.out.println("Response Code: " + response.statusCode() + ", GET Request Utility - Negative Scenario");
         System.out.println("----------------------------------------------");
+
         Assert.assertEquals(response.getStatusCode(), 404, "Expected HTTP 404");
+
     }
 
     /*** Post Request Login - Negative Scenario ***/
     @Test(priority = 3)
-    public void testPostLogin_Negative() throws IOException, InterruptedException {
+    public void testLogin_Negative() throws IOException, InterruptedException {
 
         String endpoint = "/login";
 
@@ -61,6 +64,7 @@ public class TestApi {
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
         System.out.println("Response Code: " + response.statusCode() + ", Post Request Login - Negative Scenario");
         System.out.println("Response Body Post Login negative : " + response.body());
         System.out.println("----------------------------------------------");
@@ -68,9 +72,47 @@ public class TestApi {
         Assert.assertEquals(response.statusCode(), 401, "Expected HTTP 401 OK");
     }
 
-    /*** Post Request Registration - Negative Scenario ***/
+    /*** Post Request Login - Positive Scenario ***/
     @Test(priority = 4)
-    public void testPostRegistration_Negative() {
+    public void testLogin_Positive() {
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        String endpoint = "/login";
+        String requestBody = "{ \"username\": \"Kikonen3\", \"password\": \"passw123KiK!4\" }";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + endpoint)) //Set the URL request
+                .header("Content-Type", "application/json") // Add HTTP header to specify JSON format
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody)) // Set HTTP method to POST and attache JSON body
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString()); // Send HTTP request and receive body as a String response
+
+            JSONObject jsonResponse = new JSONObject(response.body()); // Parse JSON response
+            Assert.assertEquals(jsonResponse.getString("message"), "Login successful", "Expected login success message"); // Verify message
+
+            String token = jsonResponse.getString("access-token"); // Extract token
+            System.out.println("Token is: " + token);
+
+            Assert.assertEquals(jsonResponse.getString("access-token"), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTY3Mjc2NjAyOCwiZXhwIjoxNjc0NDk0MDI4fQ.kCak9sLJr74frSRVQp0_27BY4iBCgQSmoT3vQVWKzJg", "Expected access-token valid token"); // Verify message
+
+            System.out.println("Response Code: " + response.statusCode() + ", Post Request Login - Positive Scenario");
+            System.out.println("----------------------------------------------");
+
+            Assert.assertNotNull(token, "Access token should not be null"); // Verify token is not null
+            Assert.assertEquals(response.statusCode(), 200, "Expected HTTP 200 OK"); // Compare status codes
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail("Exception occurred during API request: " + e.getMessage());
+        }
+    }
+
+    /*** Post Request Registration - Negative Scenario ***/
+    @Test(priority = 5)
+    public void testRegistration_Negative() {
 
         String endPoint = "/register";
 
@@ -102,12 +144,12 @@ public class TestApi {
     }
 
     /*** Post Request Registration - Positive Scenario ***/
-    @Test(priority = 5)
-    public void testPostRegistration_Positive() {
+    @Test(priority = 6)
+    public void testRegistration_Positive() {
 
         String endPoint = "/register";
 
-        String requestBody = "{ \"password\": \"passw123KiK!4w\", \"username\": \"Kinen3sd\", \"email\": \"strinsz3ws2d@yahoo.com\", " +
+        String requestBody = "{ \"password\": \"passw123KiK!u\", \"username\": \"Kinen3su\", \"email\": \"strinsz3wsu@yahoo.com\", " +
                 "\"firstName\": \"string\", \"middleName\": \"string\", \"lastName\": \"stjepanovic\" }";
 
         HttpClient client = HttpClient.newHttpClient();
@@ -134,38 +176,45 @@ public class TestApi {
 
     }
 
-    /*** Post Request Login - Positive Scenario ***/
-    @Test(priority = 6)
-    public void testPostLogin_Positive() {
+    /*** GET Request - User Negative Scenario 1 ***/
+    @Test(priority = 7)
+    public void testUser_Negative1() {
+        Response response = RestAssured
+                .given()
+                .baseUri(BASE_URL)
+                .when()
+                .get("/user/11");
 
-        HttpClient client = HttpClient.newHttpClient();
+        System.out.println("Response Code: " + response.statusCode() + ", GET Request User - Negative Scenario");
+        System.out.println("Response Body Get negative, token is required: " + response.getBody().asString());
+        System.out.println("----------------------------------------------");
 
-        String endpoint = "/login";
-        String requestBody = "{ \"username\": \"Kikonen3\", \"password\": \"passw123KiK!4\" }";
+        Assert.assertEquals(response.getStatusCode(), 400, "Expected HTTP 400"); // Verify status code
+        Assert.assertEquals(response.getContentType(), "application/json", "Expected JSON response"); // Verify JSON format
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + endpoint)) //Set the URL request
-                .header("Content-Type", "application/json") // Add HTTP header to specify JSON format
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody)) // Set HTTP method to POST and attache JSON body
-                .build();
+        String responseBody = response.getBody().asString();
+        Assert.assertTrue(responseBody.contains("Token is required"), "Response body should contain 'Token is required'");
+    }
 
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString()); // Send HTTP request and receive body as a String response
+    /*** GET Request - User Negative Scenario 2 ***/
+    @Test(priority = 8)
+    public void testUser_Negative2() {
 
-            JSONObject jsonResponse = new JSONObject(response.body()); // Parse JSON response
-            Assert.assertEquals(jsonResponse.getString("message"), "Login successful", "Expected login success message"); // Verify message
+        String invalidToken = "invalid_token_12345"; // An invalid token
 
-            String token = jsonResponse.getString("access-token"); // Extract token
+        Response response = RestAssured.given()
+                .baseUri(BASE_URL)
+                .header("Authorization", "Bearer " + invalidToken)
+                .when()
+                .get("/user/23");
 
-            Assert.assertNotNull(token, "Access token should not be null"); // Verify token is not null
-            Assert.assertEquals(response.statusCode(), 200, "Expected HTTP 200 OK"); // Compare status codes
-            System.out.println("Response Code: " + response.statusCode() + ", Post Request Login - Positive Scenario");
-            System.out.println("----------------------------------------------");
+        System.out.println("Response Code: " + response.statusCode() + ", GET Request - Negative 2 User Scenario");
+        System.out.println("----------------------------------------------");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail("Exception occurred during API request: " + e.getMessage());
-        }
+        Assert.assertEquals(response.getStatusCode(), 401, "Expected status code to be 401");
+        String responseBody = response.getBody().asString();
+        Assert.assertTrue(responseBody.contains("Invalid token"), "Response body should contain 'Invalid token'");
+
     }
 
 
