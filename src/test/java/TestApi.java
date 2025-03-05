@@ -41,6 +41,7 @@ public class TestApi {
                 .get("/nonexistent");
 
         System.out.println("Response StatusCode is: " + response.statusCode() + ", GET Request Utility - Negative Scenario");
+        System.out.println();
         System.out.println("----------------------------------------------");
 
         Assert.assertEquals(response.getStatusCode(), 404, "Expected status code to be 404");
@@ -75,6 +76,7 @@ public class TestApi {
             Assert.assertEquals(jsonResponse.getString("access-token"), token, "Expected access-token valid token"); // Verify message
 
             System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Login - Positive Scenario");
+            System.out.println();
             System.out.println("----------------------------------------------");
 
             Assert.assertNotNull(token, "Access token should not be null"); // Verify token is not null
@@ -164,7 +166,6 @@ public class TestApi {
 
             System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Negative Scenario");
             System.out.println("Response Body Registration negative:: " + response.body());
-            System.out.println("Response Headers Post Registration negative:: " + response.headers());
             System.out.println("----------------------------------------------");
 
             Assert.assertEquals(response.statusCode(), 400, "Expected status code to be 400");
@@ -254,6 +255,7 @@ public class TestApi {
 
         String responseBody = response.getBody().asString();
         System.out.println("Response StatusCode is: " + response.statusCode() + ", GET Request - Negative 3 User Scenario");
+        System.out.println();
         System.out.println("----------------------------------------------");
 
         Assert.assertEquals(response.getStatusCode(), 404, "Expected status code to be 404");
