@@ -118,7 +118,7 @@ public class TestApi {
 
         String endPoint = "/register";
 
-        String requestBody = "{ \"password\": \"passw123iK!uyh\", \"username\": \"Ki3syhu\", \"email\": \"strinz3wshyu@yahoo.com\", " +
+        String requestBody = "{ \"password\": \"pasw123iK!u\", \"username\": \"K3shu9\", \"email\": \"stinzwsh3yu@yahoo.com\", " +
                 "\"firstName\": \"string\", \"middleName\": \"string\", \"lastName\": \"stjepanovic\" }";
 
         HttpClient client = HttpClient.newHttpClient();
@@ -134,6 +134,7 @@ public class TestApi {
 
             System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Positive Scenario");
             System.out.println("Response Body Registration positive:: " + response.body());
+            System.out.println();
             System.out.println("----------------------------------------------");
 
             Assert.assertEquals(response.statusCode(), 200, "Expected status code to be 200");
@@ -176,7 +177,7 @@ public class TestApi {
         }
     }
 
-    /*** GET Request - User Postive Scenario***/
+    /*** GET Request - User Positive Scenario***/
     @Test(priority = 7)
     public void testUser_Positive() {
         String validToken = "1414";
@@ -188,7 +189,7 @@ public class TestApi {
                 .header("Authorization", validToken)
                 .get("/user/" + validUser);
 
-        System.out.println("Response StatusCode is: " + response.statusCode() + ", GET Request User - Negative Scenario");
+        System.out.println("Response StatusCode is: " + response.statusCode() + ", GET Request User - Positive Scenario");
         System.out.println("Response Body User negative 1: " + response.getBody().asString());
         System.out.println("----------------------------------------------");
 
