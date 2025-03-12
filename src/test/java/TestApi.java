@@ -1,4 +1,5 @@
 import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -29,6 +30,7 @@ public class TestApi {
         System.out.println("----------------------------------------------");
 
         Assert.assertEquals(response.getStatusCode(), 200, "Expected status code to be 200"); // Verify status code
+        Assert.assertEquals(response.contentType(), "application/json", "Expected contentType to be application/json"); // Verify status code
     }
 
     /*** GET Request Utility - Negative Scenario ***/
@@ -47,9 +49,43 @@ public class TestApi {
         Assert.assertEquals(response.getStatusCode(), 404, "Expected status code to be 404");
     }
 
+    /*** GET Request Utility - Positive Scenario ***/
+    @Test(priority = 2)
+    public void testUtility_Positive1() {
+
+        String username = "Kikonen3";
+        String password = "passw123KiK!4";
+
+        String loginPayload = "{"
+                + "\"username\": \"" + username + "\","
+                + "\"password\": \"" + password + "\""
+                + "}";
+
+        Response response = RestAssured
+                .given()
+                .header("Content-Type", "application/json")
+                .baseUri(BASE_URL)
+                .body(loginPayload)
+                .when()
+                .post("/login");
+
+        System.out.println("Response StatusCode2 is: " + response.statusCode() + ", GET Request Utility - Positive Scenario");
+        System.out.println();
+        System.out.println("----------------------------------------------");
+
+        String authToken = response.jsonPath().getString("access-token"); // Adjust the key based on your API's response
+        System.out.println("Auth2 Token: " + authToken);
+
+        String message = response.jsonPath().getString("message"); // Extract message
+        Assert.assertEquals(message, "Login successful", "Expected login success message"); // Verify message
+        System.out.println("Message is: " + message);
+
+        Assert.assertEquals(response.getStatusCode(), 200, "Expected status code to be 200");
+    }
+
     /*** Post Request Login - Positive Scenario ***/
     @Test(priority = 3)
-    public void testLogin_Positive() {
+    public void testLogin_Positive2() {
 
         HttpClient client = HttpClient.newHttpClient();
 
@@ -180,8 +216,8 @@ public class TestApi {
     /*** GET Request - User Positive Scenario***/
     @Test(priority = 7)
     public void testUser_Positive() {
-        String validToken = "1414";
-        String validUser = "101";
+        String validToken = "1111";
+        int validUser = 101;
 
         Response response = RestAssured
                 .given()
