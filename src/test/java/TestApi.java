@@ -9,7 +9,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
+import java.util.Random;
+
 import com.github.javafaker.Faker;
 
 
@@ -19,8 +20,14 @@ public class TestApi {
 
     Faker faker = new Faker();
 
+    String specialCharacters = "!@#$%^&*()_+-=~`[]{}|;:,.<>?";
+
+    Random random = new Random();
+
+    char randomSpecialChar = specialCharacters.charAt(random.nextInt(specialCharacters.length()));
+
     int number = faker.number().numberBetween(1, 9999);
-    String password = "KiK!" + number;
+    String password = "KiK" + randomSpecialChar + number;
     String username = "Kiko" + number;
     String email = faker.internet().emailAddress();
     String firstName = faker.name().firstName();
@@ -32,8 +39,7 @@ public class TestApi {
     public void testRegistration_Positive() {
         String endPoint = "/register";
 
-        System.out.println("user " + username);
-        String requestBody = "{"
+        String RegistrationRequest  = "{"
                 + "\"username\": \"" + username + "\","
                 + "\"password\": \"" + password + "\","
                 + "\"email\": \"" + email + "\","
@@ -46,10 +52,9 @@ public class TestApi {
                 .given()
                 .header("Content-Type", "application/json")
                 .baseUri(BASE_URL)
-                .body(requestBody)
+                .body(RegistrationRequest )
                 .when()
                 .post(endPoint);
-
 
             System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Positive Scenario");
             System.out.println("Response Body Registration positive:: " + response.getBody().asString());
@@ -78,8 +83,7 @@ public class TestApi {
                 .when()
                 .post(endPoint);
 
-
-        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Positive Scenario");
+        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Negative Scenario");
         System.out.println("Response Body Registration negative: " + response.getBody().asString());
         String errorMessage = response.jsonPath().getString("error");;
         Assert.assertEquals(errorMessage, "Username must be between 5 and 8 characters", "Error message should match.");
@@ -105,8 +109,7 @@ public class TestApi {
                 .when()
                 .post(endPoint);
 
-
-        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Positive Scenario");
+        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Negative Scenario");
         System.out.println("Response Body Registration negative: " + response.getBody().asString());
         String errorMessage = response.jsonPath().getString("error");;
         Assert.assertEquals(errorMessage, "Username must be between 5 and 8 characters", "Error message should match.");
@@ -133,8 +136,7 @@ public class TestApi {
                 .when()
                 .post(endPoint);
 
-
-        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Positive Scenario");
+        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Negative Scenario");
         System.out.println("Response Body Registration negative: " + response.getBody().asString());
         String errorMessage = response.jsonPath().getString("error");;
         Assert.assertEquals(errorMessage, "Password must be at least 6 characters long", "Error message should match.");
@@ -160,8 +162,7 @@ public class TestApi {
                 .when()
                 .post(endPoint);
 
-
-        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Positive Scenario");
+        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Negative Scenario");
         System.out.println("Response Body Registration negative: " + response.getBody().asString());
         String errorMessage = response.jsonPath().getString("error");;
         Assert.assertEquals(errorMessage, "Password must contain at least one uppercase letter", "Error message should match.");
@@ -170,7 +171,7 @@ public class TestApi {
         Assert.assertEquals(response.statusCode(), 400, "Expected status code to be 400");
     }
 
-    /*** Post Request Registration - Negative Scenario 4 ***/
+    /*** Post Request Registration - Negative Scenario 5 ***/
     @Test(priority = 6)
     public void testRegistration_NegativeInvalidPasswordWithoutLowercase() {
 
@@ -187,8 +188,7 @@ public class TestApi {
                 .when()
                 .post(endPoint);
 
-
-        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Positive Scenario");
+        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Negative Scenario");
         System.out.println("Response Body Registration negative: " + response.getBody().asString());
         String errorMessage = response.jsonPath().getString("error");;
         Assert.assertEquals(errorMessage, "Password must contain at least one lowercase letter", "Error message should match.");
@@ -214,8 +214,7 @@ public class TestApi {
                 .when()
                 .post(endPoint);
 
-
-        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Positive Scenario");
+        System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Negative Scenario");
         System.out.println("Response Body Registration negative: " + response.getBody().asString());
         String errorMessage = response.jsonPath().getString("error");;
         Assert.assertEquals(errorMessage, "Password must contain at least one special character", "Error message should match.");
@@ -224,7 +223,7 @@ public class TestApi {
         Assert.assertEquals(response.statusCode(), 400, "Expected status code to be 400");
     }
 
-    /*** Post Request Registration - Negative Scenario 5 ***/
+    /*** Post Request Registration - Negative Scenario 6 ***/
     @Test(priority = 8)
     public void testRegistration_NegativeInvalidEmail() {
 
@@ -241,7 +240,6 @@ public class TestApi {
                 .when()
                 .post(endPoint);
 
-
         System.out.println("Response StatusCode is: " + response.statusCode() + ", Post Request Registration - Positive Scenario");
         System.out.println("Response Body Registration negative: " + response.getBody().asString());
         String errorMessage = response.jsonPath().getString("error");;
@@ -250,7 +248,6 @@ public class TestApi {
 
         Assert.assertEquals(response.statusCode(), 400, "Expected status code to be 400");
     }
-
 
     /*** GET Request Utility - Positive Scenario ***/
     @Test(priority = 9)
@@ -289,7 +286,7 @@ public class TestApi {
     @Test(priority = 11)
     public void testLogin_PositiveRandomData() {
 
-        String loginPayload = "{"
+        String LoginRequestSchema  = "{"
                 + "\"username\": \"" + username + "\","
                 + "\"password\": \"" + password + "\""
                 + "}";
@@ -298,12 +295,12 @@ public class TestApi {
                 .given()
                 .header("Content-Type", "application/json")
                 .baseUri(BASE_URL)
-                .body(loginPayload)
+                .body(LoginRequestSchema )
                 .when()
                 .post("/login");
 
         System.out.println("Response StatusCode2 is: " + response.statusCode() + ", GET Request Utility - Positive Scenario");
-        System.out.println("Response Body Login negative : " + response.getBody().asString());
+        System.out.println("Response Body Login positive : " + response.getBody().asString());
         System.out.println();
         System.out.println("----------------------------------------------");
 
@@ -314,24 +311,23 @@ public class TestApi {
 
         String message = response.jsonPath().getString("message"); // Extract message
         Assert.assertEquals(message, "Login successful", "Expected login success message"); // Verify message
-        System.out.println("Message is: " + message);
 
         Assert.assertEquals(response.getStatusCode(), 200, "Expected status code to be 200");
     }
 
     /*** Post Request Login - Positive Scenario ***/
     @Test(priority = 12)
-    public void testLogin_PositiveStuckData() {
+    public void testLogin_PositiveStuckedData() {
 
         HttpClient client = HttpClient.newHttpClient();
 
         String endpoint = "/login";
-        String requestBody = "{ \"username\": \"Kikonen3\", \"password\": \"passw123KiK!4\" }";
+        String LoginRequestSchema  = "{ \"username\": \"Kikonen3\", \"password\": \"passw123KiK!4\" }";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + endpoint)) //Set the URL request
                 .header("Content-Type", "application/json") // Add HTTP header to specify JSON format
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody)) // Set HTTP method to POST and attache JSON body
+                .POST(HttpRequest.BodyPublishers.ofString(LoginRequestSchema )) // Set HTTP method to POST and attache JSON body
                 .build();
 
         try {
@@ -366,12 +362,12 @@ public class TestApi {
     @Test(priority = 13)
     public void testLogin_NegativeInvalidPassword() throws IOException, InterruptedException {
 
-        String loginPayload = "{ \"username\": \"Kikonen3\", \"password\": \"passw123Ki\" }";
+        String LoginRequestSchema  = "{ \"username\": \"Kikonen3\", \"password\": \"passw123Ki\" }";
         Response response = RestAssured
                 .given()
                 .header("Content-Type", "application/json")
                 .baseUri(BASE_URL)
-                .body(loginPayload)
+                .body(LoginRequestSchema )
                 .when()
                 .post("/login");
 
@@ -387,12 +383,12 @@ public class TestApi {
     @Test(priority = 14)
     public void testLogin_NegativeInvalidUsername() throws IOException, InterruptedException {
 
-        String loginPayload = "{ \"username\": \"\", \"password\": \"passw123Ki\" }";
+        String LoginRequestSchema  = "{ \"username\": \"\", \"password\": \"passw123Ki\" }";
         Response response = RestAssured
                 .given()
                 .header("Content-Type", "application/json")
                 .baseUri(BASE_URL)
-                .body(loginPayload)
+                .body(LoginRequestSchema )
                 .when()
                 .post("/login");
 
@@ -408,12 +404,12 @@ public class TestApi {
     @Test(priority = 15)
     public void testLogin_NegativeInvalidUserName() throws IOException, InterruptedException {
 
-        String loginPayload = "{ \"username\": \"rtr\", \"password\": \"passw123Ki\" }";
+        String LoginRequestSchema  = "{ \"username\": \"rtr\", \"password\": \"passw123Ki\" }";
         Response response = RestAssured
                 .given()
                 .header("Content-Type", "application/json")
                 .baseUri(BASE_URL)
-                .body(loginPayload)
+                .body(LoginRequestSchema )
                 .when()
                 .post("/login");
 
@@ -445,19 +441,18 @@ public class TestApi {
 
         Assert.assertEquals(response.getStatusCode(), 200, "Expected status code to be 200"); // Verify status code
         Assert.assertEquals(response.getContentType(), "application/json", "Expected JSON response"); // Verify JSON format
-
     }
 
     /*** GET Request - User Negative Scenario 1 - Token is required ***/
     @Test(priority = 17)
-    public void testUser_Negative_1() {
+    public void testUser_Negative_TokenIsRequired() {
         Response response = RestAssured
                 .given()
                 .baseUri(BASE_URL)
                 .when()
                 .get("/user/11");
 
-        System.out.println("Response StatusCode is: " + response.statusCode() + ", GET Request User - Negative Scenario");
+        System.out.println("Response StatusCode is: " + response.statusCode() + ", GET Request - Negative 1 User Scenario");
         System.out.println("Response Body User negative 1: " + response.getBody().asString());
         System.out.println("----------------------------------------------");
 
@@ -470,7 +465,7 @@ public class TestApi {
 
     /*** GET Request - User Negative Scenario 2 - Invalid token ***/
     @Test(priority = 18)
-    public void testUser_Negative_2() {
+    public void testUser_Negative_InvalidToken() {
 
         String invalidToken = "fgdd56578";
 
@@ -491,7 +486,7 @@ public class TestApi {
 
     /*** GET Request - User Negative Scenario 3 - User not found ***/
     @Test(priority = 19)
-    public void testUser_Negative_3() {
+    public void testUser_Negative_UserNotFound() {
 
         String validToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTY3Mjc2NjAyOCwiZXhwIjoxNjc0NDk0MDI4fQ.kCak9sLJr74frSRVQp0_27BY4iBCgQSmoT3vQVWKzJg";
         int invalidUserID = 9908;
